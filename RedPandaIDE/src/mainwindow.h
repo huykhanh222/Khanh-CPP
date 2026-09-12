@@ -62,6 +62,7 @@ enum class RunType {
 class EditorManager;
 class QLabel;
 class QComboBox;
+class QPushButton;
 class CompilerManager;
 class Editor;
 class Debugger;
@@ -580,6 +581,8 @@ private slots:
 
     void on_actionOpen_Containing_Folder_triggered();
 
+    void on_actionCreate_Contest_triggered();
+
     void on_actionOpen_Terminal_triggered();
 
     void on_actionFile_Properties_triggered();
@@ -969,6 +972,10 @@ private:
     QMap<QWidget*, PTabWidgetInfo> mTabMessagesData;
 
     QTimer mAutoSaveTimer;
+    QTimer mStopwatchTimer;
+    QLabel *mStopwatchLabel;
+    QPushButton *mStopwatchStartPauseButton;
+    int mStopwatchSeconds;
 
     CaretList mCaretList;
 

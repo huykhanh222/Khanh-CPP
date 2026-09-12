@@ -19,9 +19,9 @@
 MacroInfoModel::MacroInfoModel(QObject *parent) : QAbstractListModel(parent)
 {
     addMacroInfo("<DEFAULT>", tr("The default directory"));
-    addMacroInfo("<DEVCPP>", tr("Path to the Red Panda C++'s executable file."));
-    addMacroInfo("<DEVCPPVERSION>", tr("Version of the Red Panda C++"));
-    addMacroInfo("<EXECPATH>", tr("PATH to the Red Panda C++'s installation folder."));
+    addMacroInfo("<DEVCPP>", tr("Path to the KhanhCPP executable file."));
+    addMacroInfo("<DEVCPPVERSION>", tr("Version of KhanhCPP"));
+    addMacroInfo("<EXECPATH>", tr("PATH to the KhanhCPP installation folder."));
     addMacroInfo("<DATE>", tr("Current date"));
     addMacroInfo("<DATETIME>", tr("Current date and time"));
     addMacroInfo("<INCLUDE>", tr("The first include directory of the working compiler set."));

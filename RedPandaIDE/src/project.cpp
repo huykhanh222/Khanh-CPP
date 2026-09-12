@@ -1973,7 +1973,7 @@ void Project::loadOptions(SimpleIni& ini)
             mOptions.version = 3;
             QMessageBox::information(nullptr,
                                      tr("Settings need update"),
-                                     tr("The compiler settings format of Red Panda C++ has changed.")
+                                     tr("The compiler settings format of KhanhCPP has changed.")
                                      +"<BR /><BR />"
                                      +tr("Please update your settings at Project >> Project Options >> Compiler and save your project."),
                                      QMessageBox::Ok);
@@ -2113,7 +2113,7 @@ void Project::loadOptions(SimpleIni& ini)
         mOptions.versionInfo.companyName = fromByteArray(ini.GetValue("VersionInfo", "CompanyName", ""));
         mOptions.versionInfo.fileVersion = fromByteArray(ini.GetValue("VersionInfo", "FileVersion", "0.1"));
         mOptions.versionInfo.fileDescription = fromByteArray(ini.GetValue("VersionInfo", "FileDescription",
-          toByteArray(tr("Developed using the Red Panda C++ IDE"))));
+          toByteArray(tr("Developed using the KhanhCPP IDE"))));
         mOptions.versionInfo.internalName = fromByteArray(ini.GetValue("VersionInfo", "InternalName", ""));
         mOptions.versionInfo.legalCopyright = fromByteArray(ini.GetValue("VersionInfo", "LegalCopyright", ""));
         mOptions.versionInfo.legalTrademarks = fromByteArray(ini.GetValue("VersionInfo", "LegalTrademarks", ""));

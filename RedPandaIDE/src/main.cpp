@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
 #if QT_VERSION_MAJOR < 6
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
-    app.setWindowIcon(QIcon(":/icons/images/devcpp.ico"));
+    app.setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/logo.png"));
     QDir startupDir = QDir::current();
     ExternalResource resource;
 

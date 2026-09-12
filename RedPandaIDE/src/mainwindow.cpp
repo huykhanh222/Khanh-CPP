@@ -32,6 +32,9 @@
 #include <QMimeData>
 #include <QScreen>
 #include <QStyleFactory>
+#include <QFile>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QTcpSocket>
 #include <QTemporaryFile>
 #include <QTextBlock>
@@ -136,9 +139,13 @@ MainWindow::MainWindow(QWidget *parent)
       mClosingAll{false},
       mOpenningFiles{false},
       mSystemTurnedOff{false},
-      mCompileIssuesState{CompileIssuesState::None}
+    mCompileIssuesState{CompileIssuesState::None},
+    mStopwatchLabel{nullptr},
+    mStopwatchStartPauseButton{nullptr},
+    mStopwatchSeconds{0}
 {
     ui->setupUi(this);
+    setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/logo.png"));
 
     /** Msys2 MinGW 64 Qt 6.8.0 fix: Crash when debug **/
 // #if defined(QT_DEBUG) && QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 8
@@ -176,6 +183,40 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->insertPermanentWidget(0,mFileModeStatus);
     ui->statusbar->insertPermanentWidget(0,mFileEncodingStatus);
     ui->statusbar->insertPermanentWidget(0,mFileInfoStatus);
+    QWidget *stopwatchWidget = new QWidget(this);
+    auto *stopwatchLayout = new QHBoxLayout(stopwatchWidget);
+    stopwatchLayout->setContentsMargins(5, 0, 5, 0);
+    stopwatchLayout->setSpacing(4);
+    mStopwatchLabel = new QLabel("00:00:00", stopwatchWidget);
+    mStopwatchStartPauseButton = new QPushButton(tr("Start"), stopwatchWidget);
+    auto *stopwatchResetButton = new QPushButton(tr("Reset"), stopwatchWidget);
+    stopwatchLayout->addWidget(mStopwatchLabel);
+    stopwatchLayout->addWidget(mStopwatchStartPauseButton);
+    stopwatchLayout->addWidget(stopwatchResetButton);
+    ui->statusbar->addPermanentWidget(stopwatchWidget);
+    mStopwatchTimer.setInterval(1000);
+    connect(&mStopwatchTimer, &QTimer::timeout, this, [this]() {
+        ++mStopwatchSeconds;
+        mStopwatchLabel->setText(QString("%1:%2:%3")
+                                 .arg(mStopwatchSeconds / 3600, 2, 10, QLatin1Char('0'))
+                                 .arg((mStopwatchSeconds / 60) % 60, 2, 10, QLatin1Char('0'))
+                                 .arg(mStopwatchSeconds % 60, 2, 10, QLatin1Char('0')));
+    });
+    connect(mStopwatchStartPauseButton, &QPushButton::clicked, this, [this]() {
+        if (mStopwatchTimer.isActive()) {
+            mStopwatchTimer.stop();
+            mStopwatchStartPauseButton->setText(tr("Start"));
+        } else {
+            mStopwatchTimer.start();
+            mStopwatchStartPauseButton->setText(tr("Pause"));
+        }
+    });
+    connect(stopwatchResetButton, &QPushButton::clicked, this, [this]() {
+        mStopwatchTimer.stop();
+        mStopwatchSeconds = 0;
+        mStopwatchLabel->setText("00:00:00");
+        mStopwatchStartPauseButton->setText(tr("Start"));
+    });
     mEditorManager = new EditorManager(ui->EditorTabsLeft,
                                  ui->EditorTabsRight,
                                  ui->splitterEditorPanel,
@@ -1467,7 +1508,7 @@ void MainWindow::updateAppTitle(const Editor *e)
 {
     if (mQuitting)
         return;
-    QString appName=tr("Red Panda C++");
+    QString appName=tr("KhanhCPP");
 #ifdef APP_VERSION_SUFFIX
     appName += tr(" %1 Version").arg(APP_VERSION_SUFFIX);
 #endif
@@ -5830,6 +5871,52 @@ void MainWindow::on_actionOpen_triggered()
     }
 }
 
+void MainWindow::on_actionCreate_Contest_triggered()
+{
+    bool ok = false;
+    QString contestName = QInputDialog::getText(this,
+                                                tr("Create Contest"),
+                                                tr("Contest Name:"),
+                                                QLineEdit::Normal,
+                                                QString(),
+                                                &ok).trimmed();
+    if (!ok || contestName.isEmpty())
+        return;
+
+    int problemCount = QInputDialog::getInt(this,
+                                            tr("Create Contest"),
+                                            tr("Number of Problems (N):"),
+                                            1, 1, 1000, 1, &ok);
+    if (!ok)
+        return;
+
+    QDir baseDirectory(mProject ? mProject->directory() : QDir::currentPath());
+    if (!baseDirectory.mkdir(contestName)) {
+        QMessageBox::warning(this,
+                             tr("Create Contest"),
+                             tr("Could not create contest directory '%1'.")
+                             .arg(contestName));
+        return;
+    }
+
+    QDir contestDirectory(baseDirectory.filePath(contestName));
+    for (int problem = 1; problem <= problemCount; ++problem) {
+        QFile file(contestDirectory.filePath(QString("Bai%1.cpp").arg(problem)));
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::warning(this,
+                                 tr("Create Contest"),
+                                 tr("Could not create %1.").arg(file.fileName()));
+            return;
+        }
+    }
+
+    QMessageBox::information(this,
+                             tr("Create Contest"),
+                             tr("Created %1 with %2 problem files.")
+                             .arg(contestName)
+                             .arg(problemCount));
+}
+
 void MainWindow::closeEvent(QCloseEvent *event) {
     //if mQuitting is true, closeEvent is handled before, we are waiting for parsing finished.
     //Don't save config twice ( lastopen info will get lost )
@@ -7391,7 +7478,7 @@ void MainWindow::on_actionNew_Project_triggered()
                         this,
                         tr("Save new project as"),
                         location,
-                        tr("Red Panda C++ project file (*.dev)"));
+                        tr("KhanhCPP project file (*.dev)"));
             if (!saveName.isEmpty()) {
                 s = saveName;
             }

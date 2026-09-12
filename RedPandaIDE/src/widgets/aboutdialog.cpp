@@ -20,7 +20,9 @@
 #include "../utils/os.h"
 #include "../utils.h"
 #include "../settings.h"
+#include <QCoreApplication>
 #include <QDebug>
+#include <QIcon>
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog{parent},
@@ -28,6 +30,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     setWindowFlag(Qt::WindowContextHelpButtonHint,false);
     ui->setupUi(this);
+    setWindowIcon(QIcon(QCoreApplication::applicationDirPath() + "/logo.png"));
     ui->lblTitle->setText(ui->lblTitle->text() + tr("Version: ") + REDPANDA_CPP_VERSION);
 
     QString buildArch = appArch();
